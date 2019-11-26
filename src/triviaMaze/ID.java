@@ -1,4 +1,4 @@
-package triviaMaze;
+package TrivialMaze;
 
 public enum ID {
 	Player,

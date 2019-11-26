@@ -1,4 +1,4 @@
-package triviaMaze;
+package TrivialMaze;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,7 +10,7 @@ import java.util.Random;
 public class QuestionHandler {
 	LinkedList<Question> questions = new LinkedList<Question>();
 	private int questionUsed = 0;
-	// Use Singleton pattern to connect and get data instance only one time
+	// Use Singleton pattern to coonect and get data instance only one time
 	// static variable single_instance of type QuestionHandler 
     private static QuestionHandler single_instance = null;
 	public QuestionHandler() {
@@ -27,7 +27,8 @@ public class QuestionHandler {
 	public Connection connectionDB() throws Exception {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			Connection conn = DriverManager.getConnection("jdbc:sqlite:Question.db");
+			Connection conn = DriverManager.getConnection("jdbc:sqlite:QuestionForTest.db");
+			//Connection conn = DriverManager.getConnection("jdbc:sqlite:Question.db");
 			//System.out.println("Connect database successfully");
 			return conn;
 	   }catch ( Exception e ) {
@@ -94,18 +95,27 @@ public class QuestionHandler {
 		         int id  = rs.getInt("QuestionID");
 		         String question = rs.getString("Question");
 		         String correctAns = rs.getString("CorrectAnswer");
+		         String answer = rs.getString("CorrectAnswer");
 		         String wrongAns1 = rs.getString("WrongAnswer1");
 		         String wrongAns2 = rs.getString("WrongAnswer2");
 		         String wrongAns3 = rs.getString("WrongAnswer3");
+		         String[] answers = new String[4];
+		         answers[0] = answer;
+		         answers[1] = wrongAns1;
+		         answers[2] = wrongAns2;
+		         answers[3] = wrongAns3;
+		         
 		         int type = rs.getInt("TypeOfQuestion");
 		         TypeOfQuestion typeOfQuestion = TypeOfQuestion.MutipleChoice;
-		         if( type == 1)
+		         if (type == 0) {
+		        	 randomAnswer(answers,4);
+		         }else if( type == 1) {
 		        	 typeOfQuestion = TypeOfQuestion.TrueFalse;
+		         }
 		         else if (type == 2)
 		        	 typeOfQuestion = TypeOfQuestion.ShortAnswer;
-		         
 		         int status = rs.getInt("Status");
-		         this.addObject(new Question(id, question, correctAns, wrongAns1, wrongAns2, wrongAns3, typeOfQuestion, status));
+		         this.addObject(new Question(id, question, answer, answers[0], answers[1], answers[2], answers[3], typeOfQuestion, status));
 		      }
 			stmt.close();
 			c.close();
@@ -113,6 +123,18 @@ public class QuestionHandler {
 			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
 			System.exit(0);
 		}
+	}
+	/**
+	 * Random answers in string array
+	 */
+	public void randomAnswer(String[] answers, int bounds) {
+		Random r = new Random();
+		int rd = r.nextInt(bounds);
+		//System.out.println(answers[0] +", "+ answers[1]+", "+ answers[2]+", "+ answers[3]);
+		String temp = answers[rd];
+		answers[rd] = answers[0];
+		answers[0] = temp;
+		//System.out.println(answers[0] +", "+ answers[1]+", "+ answers[2]+", "+ answers[3]);
 	}
 	public String toString() {
 		Connection c = null;

@@ -1,4 +1,4 @@
-package triviaMaze;
+package TrivialMaze;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -63,7 +63,7 @@ public class GameManager extends Canvas implements Runnable {
             delta += (now - lastTime) / ns;
             lastTime = now;
             // whenever delta >= 1, we call tick()
-            while(delta >= 1)
+            while(delta >=1)
             {
                 tick();
                 delta--;
