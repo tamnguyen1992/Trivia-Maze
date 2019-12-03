@@ -1,10 +1,11 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public class Target extends GameObject{
+	private static final long serialVersionUID = 1L;
 
 	public Target(int x, int y, ID id) {
 		super(x, y, id);

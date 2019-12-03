@@ -1,10 +1,11 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public class Door extends GameObject{
+	private static final long serialVersionUID = 1L;
 	private Question question;
 	private DoorStatus doorStatus;
 	public Door(int x, int y, ID id, Question question, DoorStatus doorStatus) {

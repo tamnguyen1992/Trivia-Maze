@@ -1,5 +1,6 @@
-package TrivialMaze;
+package triviaMaze;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -7,7 +8,8 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class QuestionHandler {
+public class QuestionHandler implements Serializable{
+	private static final long serialVersionUID = 1L;
 	LinkedList<Question> questions = new LinkedList<Question>();
 	private int questionUsed = 0;
 	// Use Singleton pattern to coonect and get data instance only one time
@@ -37,14 +39,14 @@ public class QuestionHandler {
 	   }
 		return null;
 	}
-	public void insertQuestion(String question, String correctAns, String wrAns1, String wrAns2, String wrAns3, int type, int status) {
+	public void insertQuestion(String question, String correctAns, String wrAns1, String wrAns2, String wrAns3, int type) {
 		Connection c = null;
 		Statement stmt = null;
 		try {
 			c = connectionDB();
 			stmt = c.createStatement();
-			String sql = "INSERT INTO Question(Question,CorrectAnswer,WrongAnswer1,WrongAnswer2,WrongAnswer3,TypeOfQuestion,Status)"+
-							"VALUES ('"+question+"','"+correctAns+"','"+wrAns1+"','"+wrAns2+"','"+wrAns3+"',"+type+","+status+")";
+			String sql = "INSERT INTO Question(Question,CorrectAnswer,WrongAnswer1,WrongAnswer2,WrongAnswer3,TypeOfQuestion)"+
+							"VALUES ('"+question+"','"+correctAns+"','"+wrAns1+"','"+wrAns2+"','"+wrAns3+"',"+type+")";
 			stmt.executeUpdate(sql);
 			System.out.println("Inserted records into the table...");
 			stmt.close();
@@ -73,6 +75,10 @@ public class QuestionHandler {
 				return question;
 			}
 		}
+	}
+	public Question getQuestionById(int id) {
+		Question question = questions.get(id);
+		return question;
 	}
 	public void resetQuestion() {
 		this.single_instance = null;
@@ -114,7 +120,8 @@ public class QuestionHandler {
 		         }
 		         else if (type == 2)
 		        	 typeOfQuestion = TypeOfQuestion.ShortAnswer;
-		         int status = rs.getInt("Status");
+		         //int status = rs.getInt("Status");
+		         int status = 0;
 		         this.addObject(new Question(id, question, answer, answers[0], answers[1], answers[2], answers[3], typeOfQuestion, status));
 		      }
 			stmt.close();
@@ -156,10 +163,9 @@ public class QuestionHandler {
 		         String wrongAns2 = rs.getString("WrongAnswer2");
 		         String wrongAns3 = rs.getString("WrongAnswer3");
 		         int type = rs.getInt("TypeOfQuestion");
-		         int status = rs.getInt("Status");
 		         result += "QuestionID: " + id + ", Question: " + question + ", Correct Answer: " + correctAns +
 		        		 	", Wrong Answer 1: " + wrongAns1 + ", Wrong Answer 2: " + wrongAns2 + ", Wrong Answer 2: " + wrongAns3 +
-		        		 	", Type Of Question: " + type + ", Status: " + status;
+		        		 	", Type Of Question: " + type +"\n";
 		      }
 			stmt.close();
 			c.close();

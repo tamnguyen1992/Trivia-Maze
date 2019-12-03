@@ -1,4 +1,4 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -17,13 +18,17 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import admin.Login;
+
 
 public class Window extends Canvas {
 
 	private static final long serialVersionUID = 1L;
-	private Action leftAction, middleAction, rightAction;
+	//private Action leftAction, middleAction, rightAction;
 	private GameManager gameManager;
-	public Window (int width, int height, String title, GameManager gameManager) {
+	private Handler handler;
+	public Window (int width, int height, String title, Handler handler, GameManager gameManager) {
+		this.handler = handler;
 		this.gameManager = gameManager;
 		JFrame frame = new JFrame(title);
 		Dimension dimension = new Dimension(width,height);
@@ -32,39 +37,20 @@ public class Window extends Canvas {
 		frame.setMaximumSize(dimension);
 		
 		//Create the actions shared by the toolbar and menu.
-        leftAction =   new LeftAction(  "Go left",
-                                        "This is the left button.", 
-                                        new Integer(KeyEvent.VK_L));
-        middleAction = new MiddleAction("Do something",
-                                        "This is the middle button.", 
-                                        new Integer(KeyEvent.VK_M));
-        rightAction =  new RightAction( "Go right",
-                                        "This is the right button.", 
-                                        new Integer(KeyEvent.VK_R));
+//        leftAction =   new NewGame(  "Go left",
+//                                        "This is the left button.", 
+//                                        new Integer(KeyEvent.VK_L));
+//        middleAction = new MiddleAction("Do something",
+//                                        "This is the middle button.", 
+//                                        new Integer(KeyEvent.VK_M));
+//        rightAction =  new RightAction( "Go right",
+//                                        "This is the right button.", 
+//                                        new Integer(KeyEvent.VK_R));
         
-		//Creating the MenuBar and adding components
-//        JMenuBar mb = new JMenuBar();
-//        JMenu m1 = new JMenu("File");
-//        JMenu m2 = new JMenu("Admin");
-//        JMenu m3 = new JMenu("About");
-//        mb.add(m1);
-//        mb.add(m2);
-//        mb.add(m3);
-//        JMenuItem m11 = new JMenuItem("New Game");
-//        JMenuItem m12 = new JMenuItem("Save as");
-//        JMenuItem m13 = new JMenuItem("Load Game");
-//        JMenuItem m14 = new JMenuItem("Exit");
-//        m1.add(m11);
-//        m1.add(m12);
-//        m1.add(m13);
-//        m1.add(m14);
-//
-//        JMenuItem m21 = new JMenuItem("Log In");
-//        JMenuItem m22 = new JMenuItem("Add Question");
-//        m2.add(m21);
-//        m2.add(m22); 
+		
         
         frame.getContentPane().add(BorderLayout.NORTH, createMenuBar());
+        //frame.getContentPane().add(BorderLayout.NORTH, mb);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 	// get exit button on window
 		frame.setResizable(false); 								// do not allow resize window
 		frame.setLocationRelativeTo(null);						// to place window in the center of screen
@@ -74,62 +60,100 @@ public class Window extends Canvas {
 		
 	}
 	public JMenuBar createMenuBar() {
-        JMenuItem menuItem = null;
-        JMenuBar menuBar;
+//        JMenuItem menuItem = null;
+//        JMenuBar menuBar;
+//
+//        //Create the menu bar.
+//        menuBar = new JMenuBar();
+//
+//        //Create the first menu.
+//        JMenu mainMenu = new JMenu("Menu");
+//
+//        Action[] actions = {leftAction, middleAction, rightAction};
+//        for (int i = 0; i < actions.length; i++) {
+//            menuItem = new JMenuItem(actions[i]);
+//            menuItem.setIcon(null); //arbitrarily chose not to use icon
+//            mainMenu.add(menuItem);
+//        }
+//
+//        //Set up the menu bar.
+//        menuBar.add(mainMenu);
+//        //menuBar.add(createAbleMenu());
+//        return menuBar;
+		//Creating the MenuBar and adding components
+		//Action newGameAct = new NewGame("New Game");
+        JMenuBar mb = new JMenuBar();
+        JMenu m1 = new JMenu("File");
+        JMenu m2 = new JMenu("Admin");
+        JMenu m3 = new JMenu("About");
+        mb.add(m1);
+        mb.add(m2);
+        mb.add(m3);
+        JMenuItem m11 = new JMenuItem(new NewGame("New Game"));
+        JMenuItem m12 = new JMenuItem(new SaveAs("Save as"));
+        JMenuItem m13 = new JMenuItem(new LoadGame("Load Game"));
+        JMenuItem m14 = new JMenuItem("Exit");
+        m1.add(m11);
+        m1.add(m12);
+        m1.add(m13);
+        m1.add(m14);
 
-        //Create the menu bar.
-        menuBar = new JMenuBar();
-
-        //Create the first menu.
-        JMenu mainMenu = new JMenu("Menu");
-
-        Action[] actions = {leftAction, middleAction, rightAction};
-        for (int i = 0; i < actions.length; i++) {
-            menuItem = new JMenuItem(actions[i]);
-            menuItem.setIcon(null); //arbitrarily chose not to use icon
-            mainMenu.add(menuItem);
-        }
-
-        //Set up the menu bar.
-        menuBar.add(mainMenu);
-        //menuBar.add(createAbleMenu());
-        return menuBar;
+        JMenuItem m21 = new JMenuItem(new AddQuestion("Add Question"));
+        //JMenuItem m22 = new JMenuItem("Add Question");
+        m2.add(m21);
+        //m2.add(m22); 
+        return mb;
     }
-	public class LeftAction extends AbstractAction {
-        public LeftAction(String text,
-                          String desc, Integer mnemonic) {
+	public class NewGame extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public NewGame(String text) {
             super(text);
-            putValue(SHORT_DESCRIPTION, desc);
-            putValue(MNEMONIC_KEY, mnemonic);
         }
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Action for first button/menu item");
-            gameManager.clearObject();
+        	gameManager.clearObject();
             gameManager.newGame();
         }
     }
 
-    public class MiddleAction extends AbstractAction {
-        public MiddleAction(String text,
-                            String desc, Integer mnemonic) {
+    public class AddQuestion extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public AddQuestion(String text) {
             super(text);
-            putValue(SHORT_DESCRIPTION, desc);
-            putValue(MNEMONIC_KEY, mnemonic);
         }
         public void actionPerformed(ActionEvent e) {
-        	System.out.println("Action for second button/menu item");
+        	System.out.println("login");
+        	Login.main(null);
         }
     }
 
-    public class RightAction extends AbstractAction {
-        public RightAction(String text,
-                           String desc, Integer mnemonic) {
+    public class SaveAs extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public SaveAs(String text) {
             super(text);
-            putValue(SHORT_DESCRIPTION, desc);
-            putValue(MNEMONIC_KEY, mnemonic);
         }
         public void actionPerformed(ActionEvent e) {
-        	System.out.println("Action for thirst button/menu item");
+        	//System.out.println(gameManager.saveAsGameObject());
+        	//gameManager.saveAsDoors();
+        	//gameObjects = gameManager.getGameObjects(handler, gameManager);
+        	//gameObjects = gameManager.saveGameObject();
+        	gameManager.saveGame();
+        }
+    }
+    public class LoadGame extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public LoadGame(String text) {
+            super(text);
+        }
+        public void actionPerformed(ActionEvent e) {
+//        	gameObjects = gameManager.getGameObjects(handler, gameManager);
+//        	if(gameObjects != null)
+//        		gameManager.loadGame(gameObjects);
+        	LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
+//        	gameObjects = (LinkedList<GameObject>) gameManager.load("save.maze");
+//        	gameManager.loadGame(gameObjects);
+        	gameObjects = gameManager.loadGame();
+        	gameManager.loadGame(gameObjects);
+        	
         }
     }
 }

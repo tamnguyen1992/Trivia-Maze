@@ -1,6 +1,9 @@
-package TrivialMaze;
+package triviaMaze;
 
-public class Question {
+import java.io.Serializable;
+
+public class Question implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private String question;
 	private String correctAnswer;
@@ -40,6 +43,22 @@ public class Question {
 		this.type = type;
 		this.status = status;
 	}
+	public Question(int id) {
+		questionHandler = QuestionHandler.getInstance();
+		Question temp = questionHandler.getQuestionById(id);
+		if (temp != null) {
+			this.id = temp.getId();
+			this.question = temp.getQuestion();
+			this.correctAnswer = temp.getCorrectAnswer();
+			this.answer1 = temp.getAnswer1();
+			this.answer2 = temp.getAnswer2();
+			this.answer3 = temp.getAnswer3();
+			this.answer4 = temp.getAnswer4();
+			//this.hint = hint;
+			this.type = temp.getType();
+			this.status = temp.getStatus();
+		}
+	}
 	public int getId() {
 		return id;
 	}
@@ -73,8 +92,8 @@ public class Question {
     public String toString() {
     	String result = "";
     	result += "QuestionID: " + id + ", Question: " + question + ", Correct Answer: " + answer1 +
-    		 	", Wrong Answer 1: " + answer2 + ", Wrong Answer 2: " + answer3 + ", Wrong Answer 2: " + answer4 +
-    		 	", Type Of Question: " + type + ", Status: " + status;
+    		 	", Wrong Answer 1: " + answer2 + ", Wrong Answer 2: " + answer3 + ", Wrong Answer 3: " + answer4 +
+    		 	", Type Of Question: " + type + ", Status: " + status +"\n";
     	return result;
     }
 }

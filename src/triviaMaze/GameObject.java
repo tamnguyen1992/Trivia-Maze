@@ -1,9 +1,11 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.io.Serializable;
 
-public abstract class GameObject {
+public abstract class GameObject implements Serializable {
+	private static final long serialVersionUID = 1L;
 	//protected means it can only be accessed by which object inherits the GameObject 
 	protected int x,y; 	// location
 	protected ID id;

@@ -1,4 +1,4 @@
-package TrivialMaze;
+package triviaMaze;
 
 public class SimpleMaze implements MazeBuilder{
 
@@ -6,7 +6,7 @@ public class SimpleMaze implements MazeBuilder{
 	public void buildMaze(int row, int col, int x, int y, int roomDist, int borderDist, Handler handler, GameManager gameManager) {
 		buildRoom(row, col, x, y, handler);
 		buildDoor(row, col, x, y, handler);
-		handler.addObject(new Player(x + borderDist, y + borderDist, ID.Player, handler, gameManager));
+		handler.addObject(new Player(x + borderDist, y + borderDist, ID.Player,x + borderDist, y + borderDist,row,col, handler, gameManager));
 		handler.addObject(new Target(x + borderDist + roomDist * 2 * (col -1), y + borderDist + roomDist * 2 * (row -1) , ID.Target));
 	}
 	
@@ -15,7 +15,7 @@ public class SimpleMaze implements MazeBuilder{
 		int horDist = 60; //distance from 2 room
 		for(int i = 0; i < row; i++) {
 			for(int j = 0; j < col; j++) {
-				handler.addObject(new Room(x, y, ID.Room, handler));
+				handler.addObject(new Room(x, y, ID.Room));
 				x +=horDist;
 			}
 			x = temp;

@@ -1,25 +1,18 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public class Room extends GameObject{
-	private Handler handler;
-	public Room(int x, int y, ID id, Handler handler) {
-		super(x, y, id);
-		// TODO Auto-generated constructor stub
-		this.handler = handler;
-		
+	private static final long serialVersionUID = 1L;
+
+	public Room(int x, int y, ID id) {
+		super(x, y, id);		
 	}
-//	private void addDoors() {
-//		handler.addObject(new Door(x+60, y+14, ID.DoorVertical));
-//		handler.addObject(new Door(x+14, y+60, ID.DoorHorizontal));
-//	}
+
 	@Override
 	public void tick() {
-		// TODO Auto-generated method stub
-		//addDoors();
 	}
 
 	@Override
@@ -29,11 +22,6 @@ public class Room extends GameObject{
 		g.fillRect(x, y, 68, 68);
 		g.setColor(Color.white);
 		g.fillRect(x+8, y+8, 52, 52);
-		
-
-		//border
-//		g.setColor(Color.black);
-//		g.drawRect(100, 100, 62, 62);
 	}
 
 	@Override

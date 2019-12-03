@@ -1,4 +1,4 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -18,7 +18,7 @@ public class KeyInput extends KeyAdapter{
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
 
-		for (GameObject gameObject : handler.gameObjects) {
+		for (GameObject gameObject : handler.getGameObjects()) {
 			if(gameObject.getID() == ID.Player && gameManager.getWindowState() == WindowState.GameWindow) {
 				//System.out.println(key);
 				if(key == KeyEvent.VK_UP) { 

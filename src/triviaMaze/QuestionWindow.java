@@ -1,10 +1,11 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.Serializable;
 import java.util.Random;
 
 import javax.swing.JScrollPane;
@@ -12,7 +13,8 @@ import javax.swing.JTextArea;
 
 import java.awt.Rectangle;
 
-public class QuestionWindow extends MouseAdapter{
+public class QuestionWindow extends MouseAdapter implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private GameManager gameManager;
 	private Handler handler;
 	// To store temporary answer from render
@@ -100,14 +102,14 @@ public class QuestionWindow extends MouseAdapter{
 		gameManager.setWindowState(WindowState.GameWindow);
 	}
 	private void playerMoveForward() {
-		for (GameObject gameObject : handler.gameObjects) {
+		for (GameObject gameObject : handler.getGameObjects()) {
 			if(gameObject.getID() == ID.Player) {
 				gameObject.moveForward();
 			}
 		}
 	}
 	private void playerMoveBackward() {
-		for (GameObject gameObject : handler.gameObjects) {
+		for (GameObject gameObject : handler.getGameObjects()) {
 			if(gameObject.getID() == ID.Player) {
 				gameObject.moveBackward();
 			}

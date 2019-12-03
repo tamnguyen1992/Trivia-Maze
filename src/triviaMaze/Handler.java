@@ -1,10 +1,12 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Graphics;
+import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Handler {
-	LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
+public class Handler implements Serializable{
+	private static final long serialVersionUID = 1L;
+	private LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
 	public void tick() {
 		// for (GameObject gameObject : gameObjects) {
 		//		gameObject.tick();
@@ -39,5 +41,8 @@ public class Handler {
 			removeObject(gameObjects.get(i));
 			i--;
 		}
+	}
+	public LinkedList<GameObject> getGameObjects(){
+		return this.gameObjects;
 	}
 }

@@ -1,20 +1,25 @@
-package TrivialMaze;
+package triviaMaze;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public class Player extends GameObject{
-	private Handler handler;
-	private GameManager gameManager;
-	private int XPLAYER; // Initialize location x of player
-	private int YPLAYER; // Initialize location y of player
-	public Player(int x, int y, ID id, Handler handler, GameManager gameManager) {
+	private static final long serialVersionUID = 1L;
+	private transient Handler handler;
+	private transient GameManager gameManager;
+	private int xFirstRoom; // Initialize location x of first room to check moving bounds
+	private int yFirstRoom; // Initialize location y of first room to check moving bounds
+	private int row;
+	private int col;
+	public Player(int x, int y, ID id, int xFirstRoom, int yFirstRoom, int row, int col, Handler handler, GameManager gameManager) {
 		super(x, y, id);
 		this.handler = handler;
 		this.gameManager = gameManager;
-		this.XPLAYER = x;
-		this.YPLAYER = y;
+		this.xFirstRoom = xFirstRoom;
+		this.yFirstRoom = yFirstRoom;
+		this.row = row;
+		this.col = col;
 	}
 
 	@Override
@@ -29,7 +34,7 @@ public class Player extends GameObject{
 		collisionCheck();
 	}
 	private void collisionCheck() {
-		for (GameObject gameObject : handler.gameObjects) {
+		for (GameObject gameObject : handler.getGameObjects()) {
 			// check intersect of player and door
 			if(gameObject.getID() == ID.DoorVertical || gameObject.getID() == ID.DoorHorizontal) {
 				if(getBounds().intersects(gameObject.getBounds()) && (gameObject.getDoorStatus() == DoorStatus.Init || gameObject.getDoorStatus() == DoorStatus.Locked)) {
@@ -59,19 +64,19 @@ public class Player extends GameObject{
 //		}
 	}
 	public void moveUp() {
-		if(this.getY() > YPLAYER)
+		if(this.getY() > yFirstRoom)
 			this.setY(this.getY() - gameManager.getDistRoom());
 	}
 	public void moveDown() {
-		if(this.getY() < YPLAYER + gameManager.getDistRoom() *4)
+		if(this.getY() < yFirstRoom + gameManager.getDistRoom() *2 * (row-1))
 			this.setY(this.getY() + gameManager.getDistRoom());
 	}
 	public void moveRight() {
-		if(this.getX() < XPLAYER + gameManager.getDistRoom() *4)
+		if(this.getX() < xFirstRoom + gameManager.getDistRoom() *2 * (col-1))
 			this.setX(this.getX() + gameManager.getDistRoom());
 	}
 	public void moveLeft() {
-		if(this.getX() > XPLAYER)
+		if(this.getX() > xFirstRoom)
 			this.setX(this.getX() - gameManager.getDistRoom());
 	}
 	public void moveForward() {
