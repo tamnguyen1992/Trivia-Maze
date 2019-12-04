@@ -2,21 +2,28 @@ package triviaMaze;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JWindow;
 
 import admin.Login;
 
@@ -60,28 +67,7 @@ public class Window extends Canvas {
 		
 	}
 	public JMenuBar createMenuBar() {
-//        JMenuItem menuItem = null;
-//        JMenuBar menuBar;
-//
-//        //Create the menu bar.
-//        menuBar = new JMenuBar();
-//
-//        //Create the first menu.
-//        JMenu mainMenu = new JMenu("Menu");
-//
-//        Action[] actions = {leftAction, middleAction, rightAction};
-//        for (int i = 0; i < actions.length; i++) {
-//            menuItem = new JMenuItem(actions[i]);
-//            menuItem.setIcon(null); //arbitrarily chose not to use icon
-//            mainMenu.add(menuItem);
-//        }
-//
-//        //Set up the menu bar.
-//        menuBar.add(mainMenu);
-//        //menuBar.add(createAbleMenu());
-//        return menuBar;
 		//Creating the MenuBar and adding components
-		//Action newGameAct = new NewGame("New Game");
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("File");
         JMenu m2 = new JMenu("Admin");
@@ -89,32 +75,53 @@ public class Window extends Canvas {
         mb.add(m1);
         mb.add(m2);
         mb.add(m3);
-        JMenuItem m11 = new JMenuItem(new NewGame("New Game"));
-        JMenuItem m12 = new JMenuItem(new SaveAs("Save as"));
+        
+        JMenuItem m11 = new JMenu("New Game");
+        JMenuItem m111 = new JMenuItem(new Easy("Easy"));
+        m111.setMnemonic(KeyEvent.VK_E);
+        JMenuItem m112 = new JMenuItem(new Hard("Hard"));
+        m112.setMnemonic(KeyEvent.VK_H);
+        m11.add(m111);
+        m11.add(m112);
+        
+        JMenuItem m12 = new JMenuItem(new SaveAs("Save Game"));
+        m12.setMnemonic(KeyEvent.VK_S);
         JMenuItem m13 = new JMenuItem(new LoadGame("Load Game"));
-        JMenuItem m14 = new JMenuItem("Exit");
+        m13.setMnemonic(KeyEvent.VK_L);
+        JMenuItem m14 = new JMenuItem(new Exit("Exit"));
+        m14.setMnemonic(KeyEvent.VK_X);
         m1.add(m11);
         m1.add(m12);
         m1.add(m13);
         m1.add(m14);
 
         JMenuItem m21 = new JMenuItem(new AddQuestion("Add Question"));
-        //JMenuItem m22 = new JMenuItem("Add Question");
         m2.add(m21);
-        //m2.add(m22); 
+        
+        JMenuItem m31 = new JMenuItem(new Help("Help"));
+        m3.add(m31);
         return mb;
     }
-	public class NewGame extends AbstractAction {
+	public class Easy extends AbstractAction {
 		private static final long serialVersionUID = 1L;
-		public NewGame(String text) {
+		public Easy(String text) {
             super(text);
         }
         public void actionPerformed(ActionEvent e) {
         	gameManager.clearObject();
-            gameManager.newGame();
+            gameManager.newGame("easy");
         }
     }
-
+	public class Hard extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public Hard(String text) {
+            super(text);
+        }
+        public void actionPerformed(ActionEvent e) {
+        	gameManager.clearObject();
+        	gameManager.newGame("hard");
+        }
+    }
     public class AddQuestion extends AbstractAction {
 		private static final long serialVersionUID = 1L;
 		public AddQuestion(String text) {
@@ -132,11 +139,13 @@ public class Window extends Canvas {
             super(text);
         }
         public void actionPerformed(ActionEvent e) {
-        	//System.out.println(gameManager.saveAsGameObject());
-        	//gameManager.saveAsDoors();
-        	//gameObjects = gameManager.getGameObjects(handler, gameManager);
-        	//gameObjects = gameManager.saveGameObject();
-        	gameManager.saveGame();
+        	JFileChooser fc = new JFileChooser();
+        	int response = fc.showSaveDialog(null);
+        	if(response == JFileChooser.APPROVE_OPTION) {
+        		String filename = fc.getSelectedFile().toString();
+        		gameManager.saveGame(filename);
+        	}
+        	
         }
     }
     public class LoadGame extends AbstractAction {
@@ -145,15 +154,37 @@ public class Window extends Canvas {
             super(text);
         }
         public void actionPerformed(ActionEvent e) {
-//        	gameObjects = gameManager.getGameObjects(handler, gameManager);
-//        	if(gameObjects != null)
-//        		gameManager.loadGame(gameObjects);
-        	LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
-//        	gameObjects = (LinkedList<GameObject>) gameManager.load("save.maze");
-//        	gameManager.loadGame(gameObjects);
-        	gameObjects = gameManager.loadGame();
-        	gameManager.loadGame(gameObjects);
-        	
+        	JFileChooser fc = new JFileChooser();
+        	int response = fc.showOpenDialog(null);
+        	if(response == JFileChooser.APPROVE_OPTION) {
+        		String filename = fc.getSelectedFile().toString();
+        		LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
+            	gameObjects = gameManager.loadGame(filename);
+            	gameManager.loadGame(gameObjects);
+        	}
+        }
+    }
+    public class Exit extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public Exit(String text) {
+            super(text);
+        }
+        public void actionPerformed(ActionEvent e) {
+        	System.exit(1);
+        }
+    }
+    public class Help extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public Help(String text) {
+            super(text);
+        }
+        public void actionPerformed(ActionEvent e) {
+        	String about = "Trivia Maze ver 1.0" +"\n\n" + 
+        					"Player must navigate through from entrance to exit to win the game." +"\n" +
+        					"In order to pass through a door, player need to have an correct answer."+"\n" +
+        					"If a user is unable to answer a question, that door is then locked permanently."+"\n\n" +
+        					"Use Up-Down-Left-Right keyboard to control Player.";
+        	JOptionPane.showMessageDialog(null, about);
         }
     }
 }

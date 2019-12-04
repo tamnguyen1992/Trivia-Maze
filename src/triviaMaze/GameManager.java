@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.LinkedList;
 
+import javax.swing.JOptionPane;
+
 public class GameManager extends Canvas implements Runnable{
 
 	private static final long serialVersionUID = 1L;
@@ -24,7 +26,8 @@ public class GameManager extends Canvas implements Runnable{
 //	private static final int YPLAYER = 148; // Initialize location y of player
 	private static final int ROOMDIST = 30; // Distance from center player to the door/wall
 	private static final int BORDERDIST = 18; // Distance from border player to the door/wall
-	private static int x = 210, y = 130; // Initialize location of first room.
+	private static int x = 190, y = 90; // Initialize location of first room.
+	private static int row = 0, col = 0; // Initialize size of maze
 	
 	private Direction direction; 	// direction of movement
 	
@@ -45,9 +48,8 @@ public class GameManager extends Canvas implements Runnable{
 		this.addKeyListener(new KeyInput(handler, this));
 		new Window(WIDTH, HEIGHT, "Trivial Maze",handler, this);
 		
-		//handler.addObject(new Player(118, 118, ID.Player));
 		if(windowState == WindowState.GameWindow) {
-			newGame();
+			newGame("easy");
 		}
 	}
 	
@@ -136,260 +138,108 @@ public class GameManager extends Canvas implements Runnable{
 			e.printStackTrace();
 		}
 	}
-	public void saveGame() {
+	public void saveGame(String filename) {
+		if(filename == null)
+			return;
 		// Serialization  
         try
         {    
             //Saving of object in a file 
-            FileOutputStream file = new FileOutputStream("save.txt"); 
+            FileOutputStream file = new FileOutputStream(filename); 
             ObjectOutputStream out = new ObjectOutputStream(file); 
             
             // Save all gameobjects to file
+            out.writeObject(x);
+            out.writeObject(y);
+            out.writeObject(row);
+            out.writeObject(col);
             out.writeObject(handler);
-//            out.writeObject(handler.getGameObjects().size()); //store size of the linkedlist at the top of file
-//            System.out.println(handler.getGameObjects().size());
-//            for (GameObject gameObject : handler.getGameObjects()) {
-//            	// Method for serialization of object 
-//                out.writeObject(gameObject);
-//    		}
             
             out.close(); 
             file.close(); 
-              
-            System.out.println("Object has been serialized"); 
-  
+            //System.out.println("Object has been serialized"); 
         } 
           
         catch(IOException ex) 
         { 
+        	JOptionPane.showMessageDialog(null,"Cannot save to this file");
             System.out.println("IOException is caught: "+ ex); 
         } 
 	}
-	public LinkedList<GameObject> loadGame() {
-		//clearObject();
+	public LinkedList<GameObject> loadGame(String filename) {
+		if(filename == null)
+			return null;
 		// Deserialization 
 		LinkedList<GameObject> temp = new LinkedList<GameObject>();
         try
         {   
-        	
             // Reading the object from a file 
-            FileInputStream file = new FileInputStream("save.txt"); 
+            FileInputStream file = new FileInputStream(filename); 
             ObjectInputStream in = new ObjectInputStream(file); 
-
+            
+            // Method for deserialization of object 
+            x = (int)in.readObject();
+            y = (int)in.readObject();
+            row = (int)in.readObject();
+            col = (int)in.readObject();
             Handler handler = (Handler)in.readObject();
             temp = handler.getGameObjects();
-            // Method for deserialization of object 
-            //object1 = (Demo)in.readObject(); 
-//            int size = 0;
-//            size = (int)in.readObject();
-//            
+
             for(int i = 0; i < temp.size(); i++) {
             	GameObject gameobject = temp.get(i);
+            	//Remove the old Player object and add new Player object with the old Player info
             	if(gameobject.getID() == ID.Player) {
-            		Player player = new Player(gameobject.getX(),gameobject.getY(), ID.Player,x + BORDERDIST, y + BORDERDIST,3,3, this.handler, this);
+            		Player player = new Player(gameobject.getX(),gameobject.getY(), ID.Player,x + BORDERDIST, y + BORDERDIST,row,col, this.handler, this);
 		        	temp.remove(i);
 		        	temp.add(i, player);
             	}
             }
             in.close(); 
             file.close(); 
-            System.out.println(handler.getGameObjects().size());
-            System.out.println("Object has been deserialized "); 
+            //System.out.println(handler.getGameObjects().size());
+            //System.out.println("Object has been deserialized "); 
         } 
           
         catch(IOException ex) 
         { 
+        	JOptionPane.showMessageDialog(null,"Cannot load this file");
             System.out.println("IOException is caught: " + ex); 
         } 
           
         catch(ClassNotFoundException ex) 
         { 
+        	JOptionPane.showMessageDialog(null,"Cannot load this file");
             System.out.println("ClassNotFoundException is caught"); 
         }
         return temp;
 	}
-	public LinkedList<GameObject> saveGameObject(){
-		LinkedList<GameObject> saveGameObjects = new LinkedList<GameObject>();
-		for (GameObject gameObject : handler.getGameObjects()) {
-			saveGameObjects.add(gameObject);
-		}
-		return saveGameObjects;
-	}
-	public String saveAs() {
-		int row;
-		int col;
-		int playerX = x;
-		int playerY = y;
-		LinkedList<Door> doors = new LinkedList<Door>();
-		String ret = "";
-		//simpleMaze
-		row = 3;
-		col = 3;
-		for (GameObject gameObject : handler.getGameObjects()) {
-			if(gameObject.getID() == ID.Player){
-				playerX = gameObject.getX();
-				playerY = gameObject.getY();
-			}
-			if(gameObject.getID() == ID.DoorHorizontal || gameObject.getID() == ID.DoorVertical) {
-				doors.add((Door) gameObject);
-			}
-		}
-		ret += row +", " + col +", " + playerX +", " + playerY + ", "+ doors.size() +". "+ doors.toString();
-		return ret;
-	}
-	public LinkedList<Door> saveAsDoors(){
-		LinkedList<Door> doors = new LinkedList<Door>();
-		for (GameObject gameObject : handler.getGameObjects()) {
-			if(gameObject.getID() == ID.DoorHorizontal || gameObject.getID() == ID.DoorVertical) {
-				doors.add((Door) gameObject);
-			}
-		}
-		return doors;
-	}
-	
-	public static Connection connectionDB() throws Exception {
-		try {
-			Class.forName("org.sqlite.JDBC");
-			Connection conn = DriverManager.getConnection("jdbc:sqlite:QuestionForTest.db");
-			//System.out.println("Connect database successfully");
-			return conn;
-	   }catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-			System.exit(0);
-	   }
-		return null;
-	}
-	public static void insertGaneObject(String name, int x, int y, String doorStatus, int questionID) {
-		Connection c = null;
-		Statement stmt = null;
-		try {
-			c = connectionDB();
-			stmt = c.createStatement();
-			String sql = "INSERT INTO GameObject(Name,X,Y,DoorStatus,QuestionID)"+
-							"VALUES ('"+name+"','"+x+"','"+y+"','"+doorStatus+"','"+questionID+"')";
-			stmt.executeUpdate(sql);
-			//System.out.println("Inserted records into the table...");
-			stmt.close();
-		    c.close();
-	   }catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-			System.exit(0);
-	   }
-	}
-	public static String selectData() {
-		Connection c = null;
-		Statement stmt = null;
-		String result = "";
-		try {
-			c = connectionDB();
-			stmt = c.createStatement();
-			String sql = "SELECT * FROM Question";
-			ResultSet rs = stmt.executeQuery(sql);
 
-		      // Extract data from result set
-		      while(rs.next()){
-		         //Retrieve by column name
-		         int id  = rs.getInt("QuestionID");
-		         String question = rs.getString("Question");
-		         String correctAns = rs.getString("CorrectAnswer");
-		         String wrongAns1 = rs.getString("WrongAnswer1");
-		         String wrongAns2 = rs.getString("WrongAnswer2");
-		         String wrongAns3 = rs.getString("WrongAnswer3");
-		         int type = rs.getInt("TypeOfQuestion");
-		         result += "QuestionID: " + id + ", Question: " + question + ", Correct Answer: " + correctAns +
-		        		 	", Wrong Answer 1: " + wrongAns1 + ", Wrong Answer 2: " + wrongAns2 + ", Wrong Answer 3: " + wrongAns3 +
-		        		 	", Type Of Question: " + type +"\n";
-		      }
-			stmt.close();
-			c.close();
-		} catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-			System.exit(0);
-		}
-		return result;
-	}	
-	public void saveAsGameObject(){
-		String name = "";
-		int x = 0;
-		int y = 0;
-		String doorStatus = "";
-		int questionID = 0;
-		//LinkedList<GameObject> saveGameObjects = new LinkedList<GameObject>();
-		for (GameObject gameObject : handler.getGameObjects()) {
-			if(gameObject.getID() == ID.DoorHorizontal || gameObject.getID() == ID.DoorVertical) {
-				doorStatus = gameObject.getDoorStatus().name();
-				questionID = gameObject.getQuestion().getId();
-			}
-			name = gameObject.getID().name();
-			x = gameObject.getX();
-			y = gameObject.getY();
-			insertGaneObject(name, x, y, doorStatus, questionID);
-			//saveGameObjects.add(gameObject);
-		}
-		//return saveGameObjects;
-	}
-	public LinkedList<GameObject> getGameObjects(Handler handler, GameManager gameManager) {
-		LinkedList<GameObject> saveGameObjects = new LinkedList<GameObject>();
-		Connection c = null;
-		Statement stmt = null;
-		try {
-			c = connectionDB();
-			stmt = c.createStatement();
-			String sql = "SELECT * FROM GameObject";
-			ResultSet rs = stmt.executeQuery(sql);
-
-		      // Extract data from result set
-		      while(rs.next()){
-		         //Retrieve by column name
-		         int id  = rs.getInt("Id");
-		         String name = rs.getString("Name");
-		         int x = rs.getInt("X");
-		         int y = rs.getInt("Y");
-		         int questionID = rs.getInt("QuestionID");
-		         
-		         String strDoor = rs.getString("DoorStatus");
-		         DoorStatus doorStatus = DoorStatus.Init;
-		         //get door status
-		         if(strDoor.equals(DoorStatus.Passed.name()))
-		        	 doorStatus = DoorStatus.Passed;
-		         else if(strDoor.equals(DoorStatus.Locked.name()))
-		        	 doorStatus = DoorStatus.Locked;
-		         
-		         //create each gameobject base on their ID
-		         if(name.equals(ID.Room.name())) {
-		        	 saveGameObjects.add(new Room(x, y, ID.Room));
-		         }
-		         else if(name.equals(ID.DoorVertical.name())) {
-		        	 saveGameObjects.add(new Door(x, y, ID.DoorVertical, new Question(questionID), doorStatus));
-		         }
-		         else if(name.equals(ID.DoorHorizontal.name())) {
-		        	 saveGameObjects.add(new Door(x, y, ID.DoorHorizontal, new Question(questionID), doorStatus));
-		         }
-		         else if(name.equals(ID.Player.name())) {
-		        	 //saveGameObjects.add(new Player(x, y, ID.Player, handler, gameManager));
-		         }
-		         else if(name.equals(ID.Player.name())) {
-		        	 saveGameObjects.add(new Target(x, y, ID.Target));
-		         }
-		      }
-			stmt.close();
-			c.close();
-		} catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-			System.exit(0);
-		}
-		return saveGameObjects;
-	}
 	public void loadGame(LinkedList<GameObject> gameObjects) {
+		//Clear game objects before add new game objects from save file
 		clearObject();
 		for(int i = 0; i < gameObjects.size(); i++) {
 			GameObject temp = gameObjects.get(i);
 			handler.addObject(temp);
 		}
 	}
-	public void newGame() {
-		SimpleMaze simpleMaze = new SimpleMaze();
-		simpleMaze.buildMaze(3, 3, x, y, ROOMDIST,BORDERDIST, handler, this);
+	public void newGame(String level) {
+		if(level.equals("easy")) {
+			SimpleMaze simpleMaze = new SimpleMaze();
+			Maze maze = new Maze(simpleMaze);
+			row = 4;
+			col = 4;
+			x = 190;
+			y = 90;
+			maze.buildMaze(row, col, x, y, ROOMDIST,BORDERDIST, handler, this);
+		}else if(level.equals("hard")) {
+			ComplexMaze complexMaze = new ComplexMaze();
+			Maze maze = new Maze(complexMaze);
+			x = 10;
+			y = 20;
+			col = 10;
+			row = 6;
+			maze.buildMaze(row, col, x, y, ROOMDIST, BORDERDIST, handler, this);
+		}
 	}
 	public void clearObject() {
 		selectedObject = null;
@@ -417,9 +267,5 @@ public class GameManager extends Canvas implements Runnable{
 	}
 	public GameObject getSelectedObject() {
 		return selectedObject;
-	}
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		new GameManager();
 	}
 }
