@@ -2,6 +2,7 @@ package triviaMaze;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.io.FileInputStream;
@@ -33,8 +34,10 @@ public class GameManager extends Canvas implements Runnable{
 	
 	private Thread threadGame;
 	private boolean running = false;
+	private static boolean paused = false;
 	
 	private Handler handler;
+	private Health health;
 	private QuestionHandler questionHandler;
 	private QuestionWindow questionWD;
 	private GameObject selectedObject = null;
@@ -44,9 +47,10 @@ public class GameManager extends Canvas implements Runnable{
 		handler = new Handler();
 		questionHandler = QuestionHandler.getInstance();
 		questionWD = new QuestionWindow(handler,this);
+		health = new Health(10, 10, ID.Health, 100, 255); 
 		this.addMouseListener(questionWD);
 		this.addKeyListener(new KeyInput(handler, this));
-		new Window(WIDTH, HEIGHT, "Trivial Maze",handler, this);
+		new Window(WIDTH, HEIGHT, "Trivia Maze",handler, this);
 		
 		if(windowState == WindowState.GameWindow) {
 			newGame("easy");
@@ -98,7 +102,15 @@ public class GameManager extends Canvas implements Runnable{
 	
 	private void tick() {
 		if(windowState == WindowState.GameWindow) {
-			handler.tick();
+			if(!paused) {
+				handler.tick();
+				health.tick();
+//				if(health.getHealth <= 0) {
+//					health.setHealth = 100;
+//					clearObject();
+//					windowState = WindowState.End;
+//				}
+			}
 		}
 	}
 	
@@ -116,6 +128,12 @@ public class GameManager extends Canvas implements Runnable{
 		
 		if(windowState == WindowState.GameWindow) {
 			handler.render(g);
+			health.render(g);
+			if(paused) {
+				g.setColor(Color.red);
+				g.setFont(new Font("airal", 1,30));
+				g.drawString("PAUSED! Press P to play", 100, 200);
+			}
 		} else if (windowState == WindowState.QuestionWindow) {
 			questionWD.render(g);
 		}
@@ -246,6 +264,15 @@ public class GameManager extends Canvas implements Runnable{
 		windowState = WindowState.GameWindow;
 		handler.removeAllObject();
 		questionHandler.resetQuestion();
+	}
+	public void pauseGame() {
+		if(paused)
+			paused = false;
+		else
+			paused = true;
+	}
+	public boolean getPaused() {
+		return this.paused;
 	}
 	public WindowState getWindowState() {
 		return this.windowState;

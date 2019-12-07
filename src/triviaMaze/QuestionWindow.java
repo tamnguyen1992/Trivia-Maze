@@ -167,7 +167,7 @@ public class QuestionWindow extends MouseAdapter implements Serializable{
 				Question question = gameManager.getSelectedObject().getQuestion();
 				// render question
 				String strQuestion = question.getQuestion() + "?";
-				renderQuestion(g,strQuestion,6);
+				renderQuestion(g,strQuestion,5);
 				
 				// Render answers
 				// True/False
